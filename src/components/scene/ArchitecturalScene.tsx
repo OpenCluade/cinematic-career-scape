@@ -21,12 +21,15 @@ const monoliths: Monolith[] = [
 ];
 
 /** Thin emissive strips that read as architectural lighting. */
-const strips: { key: string; position: [number, number, number]; size: [number, number, number] }[] =
-  [
-    { key: "s1", position: [-6.2, 1.1, -6.35], size: [2.6, 0.09, 0.06] },
-    { key: "s2", position: [3.4, 1.4, -5.05], size: [3, 0.09, 0.06] },
-    { key: "s3", position: [0.4, 1.25, -0.25], size: [7.2, 0.07, 0.06] },
-  ];
+const strips: {
+  key: string;
+  position: [number, number, number];
+  size: [number, number, number];
+}[] = [
+  { key: "s1", position: [-6.2, 1.1, -6.35], size: [2.6, 0.09, 0.06] },
+  { key: "s2", position: [3.4, 1.4, -5.05], size: [3, 0.09, 0.06] },
+  { key: "s3", position: [0.4, 1.25, -0.25], size: [7.2, 0.07, 0.06] },
+];
 
 export function ArchitecturalScene() {
   return (
@@ -35,8 +38,17 @@ export function ArchitecturalScene() {
       <fogExp2 attach="fog" args={[fog.color, 0.022]} />
 
       <ambientLight intensity={lighting.ambientIntensity} color="#7f93b5" />
-      <directionalLight position={lighting.keyPosition} intensity={lighting.keyIntensity} color="#8fb4d8" />
-      <pointLight position={lighting.rimPosition} intensity={lighting.rimIntensity} color={palette.emissiveSecondary} distance={60} />
+      <directionalLight
+        position={lighting.keyPosition}
+        intensity={lighting.keyIntensity}
+        color="#8fb4d8"
+      />
+      <pointLight
+        position={lighting.rimPosition}
+        intensity={lighting.rimIntensity}
+        color={palette.emissiveSecondary}
+        distance={60}
+      />
 
       {/* Ground plane */}
       <mesh rotation-x={-Math.PI / 2} position={[0, 0, -6]}>

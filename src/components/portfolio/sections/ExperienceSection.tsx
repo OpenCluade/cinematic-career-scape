@@ -38,9 +38,7 @@ export function ExperienceSection() {
             {entry.relatedProjectIds.length > 0 && (
               <p className="mt-3 text-xs text-muted-foreground">
                 Related projects:{" "}
-                {entry.relatedProjectIds
-                  .map((id) => findProjectById(id)?.title ?? id)
-                  .join(", ")}
+                {entry.relatedProjectIds.map((id) => findProjectById(id)?.title ?? id).join(", ")}
               </p>
             )}
           </li>

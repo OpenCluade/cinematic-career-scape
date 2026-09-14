@@ -8,7 +8,10 @@ export function AboutSection() {
       <p className="text-base leading-relaxed text-foreground/90">{profile.introduction}</p>
 
       <section aria-labelledby="about-expertise" className="space-y-2">
-        <h3 id="about-expertise" className="text-sm font-medium tracking-wide text-accent uppercase">
+        <h3
+          id="about-expertise"
+          className="text-sm font-medium tracking-wide text-accent uppercase"
+        >
           Areas of expertise
         </h3>
         <ul className="flex flex-wrap gap-2">

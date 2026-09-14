@@ -10,18 +10,14 @@ import { SceneErrorBoundary } from "./SceneErrorBoundary";
 const PortfolioCanvas = lazy(() => import("./PortfolioCanvas"));
 
 type SceneStatus =
-  | "loading"
-  | "ready"
-  | "unsupported"
-  | "module-error"
-  | "render-error"
-  | "context-lost";
+  "loading" | "ready" | "unsupported" | "module-error" | "render-error" | "context-lost";
 
 const STATUS_MESSAGE: Record<SceneStatus, string | null> = {
   loading: "Loading the 3D environment…",
   ready: null,
   unsupported: "WebGL 2 is not available in this browser, so the 3D environment is disabled.",
-  "module-error": "The 3D environment could not be downloaded. All content below remains available.",
+  "module-error":
+    "The 3D environment could not be downloaded. All content below remains available.",
   "render-error": "The 3D environment stopped unexpectedly. All content below remains available.",
   "context-lost": "Graphics were interrupted by the browser. Content is unaffected.",
 };
