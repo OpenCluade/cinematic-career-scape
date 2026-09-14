@@ -62,7 +62,7 @@ src/
     scene-config.ts             tunable visual and rendering parameters
 
   context/
-    PortfolioNavigation.tsx     section, optional entry ID, camera destination ID
+    PortfolioNavigation.tsx     active section and optional selected entry ID
     VisualPreferences.tsx       Reduce effects and live reduced-motion preference
 
   hooks/
@@ -74,7 +74,7 @@ src/
 ### State and rendering model
 
 - The main route mounts `PortfolioPage` once. Section changes update shared React context and HTML content without changing the Canvas key or conditional mount position.
-- Navigation state contains `activeSection`, optional `selectedEntryId`, and optional `cameraDestinationId`. Career data never contains spatial coordinates; a separate map will connect stable content IDs to destinations in Layer 3.
+- Navigation state contains `activeSection` and an optional `selectedEntryId`. Content types carry no destination IDs at all; a separate mapping from stable content IDs to camera destinations is introduced only in Layer 3.
 - `CameraController` is the sole camera owner. It remains fixed in Layer 1. Later, it will own and clean up GSAP timelines, interrupt in-flight transitions, and retarget from the current camera transform.
 - The Canvas uses `frameloop="demand"`. Layer 1 will invalidate only after resources finish loading, viewport changes, context restoration, or graphics preference changes. No unconditional `useFrame` invalidation loop will be added.
 - The initial introduction, navigation, active panel, status text, and Reduce effects control render as normal server-rendered HTML. The scene module loads lazily inside a client-only boundary with stable server/client fallback markup.
@@ -83,8 +83,8 @@ src/
 ### Typed content model
 
 - **Profile:** `[Your Name]`, `Solution Architect · Cloud · DevOps`, placeholder introduction, expertise, and organizational value.
-- **Experience:** stable ID, company, role, start/end dates, summary, contributions, technologies, outcomes, related project IDs, and optional destination ID.
-- **Projects:** stable ID, title, problem, role/contribution, architecture decisions, technologies, results, optional images/links, and optional destination ID.
+- **Experience:** stable ID, company, role, start/end dates, summary, contributions, technologies, outcomes, and related project IDs. No destination or camera field.
+- **Projects:** stable ID, title, problem, role/contribution, architecture decisions, technologies, results, and optional images/links. No destination or camera field.
 - **Contact:** explicitly marked placeholders only; no fake URLs, email addresses, or downloads.
 - One local data source feeds every HTML panel. There is no duplicate CV view, `/cv` page, fake download, API, database, authentication, or CMS.
 
@@ -99,7 +99,7 @@ src/
 
 ### B. Typed placeholder content
 
-- [ ] Add strict TypeScript types for profile, company experience, project, contact, section IDs, entry IDs, and destination IDs.
+- [ ] Add strict TypeScript types for profile, company experience, project, contact, section IDs, and stable entry IDs — no destination IDs in content types.
 - [ ] Add `[Your Name]` and the specified professional title.
 - [ ] Mark every other unknown personal value visibly as a placeholder.
 - [ ] Include multiple placeholder experience/project shapes only as clearly labeled structural placeholders—not invented companies, dates, achievements, metrics, testimonials, links, or contact details.
@@ -134,19 +134,19 @@ src/
 - [ ] Handle scene chunk/module download failure without taking down the page.
 - [ ] Detect unavailable WebGL 2 before Canvas creation and show the static fallback.
 - [ ] Catch scene initialization/render errors and report a concise fallback status.
-- [ ] Listen for `webglcontextlost`, prevent default recovery behavior, switch to fallback, and avoid endless retries; allow one deliberate user-triggered retry if safe.
+- [ ] Handle `webglcontextlost` by calling `preventDefault()` — which permits restoration rather than preventing it — coordinating with Three.js's own context lifecycle instead of duplicating it. Keep the full HTML interface intact, show the fallback while graphics are unavailable, handle `webglcontextrestored` safely where supported, and never auto-remount or retry in a loop. Only a deliberate user recovery action may recreate the Canvas; ordinary section navigation always preserves it.
 - [ ] Use a simple tokenized background whenever 3D is unavailable.
 
 ### F. Verification and acceptance report
 
-- [ ] Run the production build and the available TypeScript check (`tsgo`); run focused lint/tests where applicable.
+- [ ] Run the production build and the project's actual configured type-check command, reporting that exact command and its real output.
 - [ ] Inspect the installed versions and peer dependency tree.
 - [ ] Verify in a browser that the real R3F/WebGL scene renders and the intended emissive object visibly blooms.
 - [ ] Select all four sections and confirm the correct panel opens while the exact same Canvas element/context remains mounted.
-- [ ] Instrument/request animation frames during an idle interval to confirm the demand-rendered static scene is not continuously drawing.
+- [ ] Measure real idle rendering: count renderer/composer render calls (or R3F frame callbacks) after the scene settles — not every application `requestAnimationFrame` — and confirm no unconditional scene invalidation loop exists.
 - [ ] Toggle Reduce effects and verify Bloom disables and DPR lowers without breaking the scene.
 - [ ] Simulate delayed scene loading and module/render failure; confirm HTML remains usable.
-- [ ] Trigger WebGL context loss with the browser extension API where supported and confirm the intended fallback appears without retry looping.
+- [ ] Trigger context loss via `WEBGL_lose_context` where supported; confirm the HTML stays usable, the fallback appears, restoration is handled safely, and nothing retries in a loop.
 - [ ] Test keyboard navigation, visible focus, active-section semantics, natural panel scrolling, and no trapped focus.
 - [ ] Test at desktop 1440×900, mobile 375×812, and 200% browser zoom; capture desktop and mobile screenshots.
 - [ ] Refresh `/` and inspect console/runtime output for hydration, application, WebGL, and asset errors.
