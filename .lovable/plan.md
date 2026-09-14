@@ -134,19 +134,19 @@ src/
 - [ ] Handle scene chunk/module download failure without taking down the page.
 - [ ] Detect unavailable WebGL 2 before Canvas creation and show the static fallback.
 - [ ] Catch scene initialization/render errors and report a concise fallback status.
-- [ ] Listen for `webglcontextlost`, prevent default recovery behavior, switch to fallback, and avoid endless retries; allow one deliberate user-triggered retry if safe.
+- [ ] Handle `webglcontextlost` by calling `preventDefault()` — which permits restoration rather than preventing it — coordinating with Three.js's own context lifecycle instead of duplicating it. Keep the full HTML interface intact, show the fallback while graphics are unavailable, handle `webglcontextrestored` safely where supported, and never auto-remount or retry in a loop. Only a deliberate user recovery action may recreate the Canvas; ordinary section navigation always preserves it.
 - [ ] Use a simple tokenized background whenever 3D is unavailable.
 
 ### F. Verification and acceptance report
 
-- [ ] Run the production build and the available TypeScript check (`tsgo`); run focused lint/tests where applicable.
+- [ ] Run the production build and the project's actual configured type-check command, reporting that exact command and its real output.
 - [ ] Inspect the installed versions and peer dependency tree.
 - [ ] Verify in a browser that the real R3F/WebGL scene renders and the intended emissive object visibly blooms.
 - [ ] Select all four sections and confirm the correct panel opens while the exact same Canvas element/context remains mounted.
-- [ ] Instrument/request animation frames during an idle interval to confirm the demand-rendered static scene is not continuously drawing.
+- [ ] Measure real idle rendering: count renderer/composer render calls (or R3F frame callbacks) after the scene settles — not every application `requestAnimationFrame` — and confirm no unconditional scene invalidation loop exists.
 - [ ] Toggle Reduce effects and verify Bloom disables and DPR lowers without breaking the scene.
 - [ ] Simulate delayed scene loading and module/render failure; confirm HTML remains usable.
-- [ ] Trigger WebGL context loss with the browser extension API where supported and confirm the intended fallback appears without retry looping.
+- [ ] Trigger context loss via `WEBGL_lose_context` where supported; confirm the HTML stays usable, the fallback appears, restoration is handled safely, and nothing retries in a loop.
 - [ ] Test keyboard navigation, visible focus, active-section semantics, natural panel scrolling, and no trapped focus.
 - [ ] Test at desktop 1440×900, mobile 375×812, and 200% browser zoom; capture desktop and mobile screenshots.
 - [ ] Refresh `/` and inspect console/runtime output for hydration, application, WebGL, and asset errors.
