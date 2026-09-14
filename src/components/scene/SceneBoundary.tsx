@@ -135,8 +135,7 @@ export function SceneBoundaryView({
     status === "init-timeout";
   const showBackdrop = status !== "ready";
   const message = STATUS_MESSAGE[status];
-  const mountCanvas =
-    support === "supported" && Canvas !== null && status !== "module-error";
+  const mountCanvas = support === "supported" && Canvas !== null && status !== "module-error";
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
