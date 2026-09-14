@@ -1,29 +1,55 @@
-# Welcome to your Lovable project
+# Immersive portfolio — solution architecture, cloud, DevOps
 
-This project was built with [Lovable](https://lovable.dev).
+A single-route, backend-free personal portfolio. A persistent 3D environment sits
+behind the page while the introduction, navigation and content panels are plain,
+server-rendered HTML.
 
-## Build with Lovable
+## Product shape
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+- One route: `/`. There is **no** `/cv` route and no separate standard CV page.
+- Four sections — About, Experience, Projects, Contact — switched by a persistent
+  HTML menu. Changing section never recreates the 3D canvas.
+- CV information is integrated into the immersive experience itself. Until real
+  content is supplied, every personal field is an explicit placeholder; no
+  employers, dates, metrics, contact details, links or CV downloads are invented.
+- No database, authentication, CMS or server API. All content lives in
+  `src/content/portfolio.ts` behind the types in `src/content/portfolio.types.ts`.
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+## Structure
+
+| Path | Responsibility |
+| --- | --- |
+| `src/routes/index.tsx` | The single route and its page metadata |
+| `src/components/portfolio/` | Header, navigation, content panel and section renderers |
+| `src/components/scene/` | Canvas, procedural scene, camera, Bloom, lifecycle, failure handling |
+| `src/context/` | Navigation state and visual preferences |
+| `src/content/` | Typed local content (independent of scene coordinates) |
+
+The scene is loaded client-side only and never blocks the page. If WebGL 2 is
+missing, the module fails to download, the renderer fails to start or the
+graphics context is lost, a static background and a short status message replace
+the environment while all content stays usable. Recovery is always a deliberate
+button press — nothing retries automatically.
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Requires Node.js and npm (or Bun).
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
 npm i
 npm run dev
 ```
 
+| Script | Purpose |
+| --- | --- |
+| `npm run dev` | Development server |
+| `npm run build` | Production build |
+| `npm run typecheck` | TypeScript check (`tsc --noEmit`) |
+| `npm run lint` | ESLint |
+| `npm test` | Vitest regression checks |
+
 ## Built with
 
-- TanStack Start
-- TypeScript
-- React
+- TanStack Start, React, TypeScript, Vite
+- Three.js via @react-three/fiber, drei, @react-three/postprocessing
 - Tailwind CSS
