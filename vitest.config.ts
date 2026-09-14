@@ -1,0 +1,20 @@
+import { fileURLToPath } from "node:url";
+
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vitest/config";
+
+// Standalone config: the app's Vite config loads the TanStack Start + Nitro
+// plugin chain, which is not needed (and not safe) for component tests.
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
+  test: {
+    environment: "jsdom",
+    include: ["src/**/*.test.{ts,tsx}"],
+    css: false,
+  },
+});

@@ -35,7 +35,7 @@ export function ArchitecturalScene() {
   return (
     <group>
       <color attach="background" args={[sceneConfig.render.clearColor]} />
-      <fogExp2 attach="fog" args={[fog.color, 0.022]} />
+      <fogExp2 attach="fog" args={[fog.color, fog.density]} />
 
       <ambientLight intensity={lighting.ambientIntensity} color="#7f93b5" />
       <directionalLight

@@ -7,15 +7,8 @@ import { BloomEffects } from "./BloomEffects";
 import { CameraController } from "./CameraController";
 import { ContextEvents } from "./ContextEvents";
 import { GraphicsLifecycle } from "./GraphicsLifecycle";
+import type { PortfolioCanvasProps as Props } from "./PortfolioCanvasProps";
 import { sceneConfig } from "./scene-config";
-
-interface Props {
-  reduceEffects: boolean;
-  pageVisible: boolean;
-  onReady: () => void;
-  onContextLost: () => void;
-  onContextRestored: () => void;
-}
 
 function ReadySignal({ onReady }: { onReady: () => void }) {
   useEffect(() => {

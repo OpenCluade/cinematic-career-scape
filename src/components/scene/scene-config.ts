@@ -19,10 +19,10 @@ export const sceneConfig = {
     clearColor: "#0a0e16",
   },
 
+  /** Exponential-squared fog: density is the only parameter it uses. */
   fog: {
     color: "#0a0e16",
-    near: 14,
-    far: 74,
+    density: 0.022,
   },
 
   palette: {
