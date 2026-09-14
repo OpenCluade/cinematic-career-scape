@@ -34,7 +34,7 @@ export const sceneConfig = {
   },
 
   lighting: {
-    ambientIntensity: 0.22,
+    ambientIntensity: 0.3,
     keyIntensity: 1.1,
     keyPosition: [9, 12, 6] as [number, number, number],
     rimIntensity: 1.6,

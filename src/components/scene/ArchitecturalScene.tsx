@@ -76,7 +76,7 @@ export function ArchitecturalScene() {
       ))}
 
       {/* Focal emissive object — the intended Bloom subject. */}
-      <mesh position={[0, 3.1, -7]}>
+      <mesh position={[4.6, 3.6, -8]}>
         <torusGeometry args={[1.45, 0.055, 24, 140]} />
         <meshStandardMaterial
           color={palette.emissive}
@@ -85,7 +85,7 @@ export function ArchitecturalScene() {
           toneMapped={false}
         />
       </mesh>
-      <mesh position={[0, 3.1, -7]}>
+      <mesh position={[4.6, 3.6, -8]}>
         <sphereGeometry args={[0.34, 32, 32]} />
         <meshStandardMaterial
           color="#d8fbff"
