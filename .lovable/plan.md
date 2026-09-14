@@ -62,7 +62,7 @@ src/
     scene-config.ts             tunable visual and rendering parameters
 
   context/
-    PortfolioNavigation.tsx     section, optional entry ID, camera destination ID
+    PortfolioNavigation.tsx     active section and optional selected entry ID
     VisualPreferences.tsx       Reduce effects and live reduced-motion preference
 
   hooks/
@@ -74,7 +74,7 @@ src/
 ### State and rendering model
 
 - The main route mounts `PortfolioPage` once. Section changes update shared React context and HTML content without changing the Canvas key or conditional mount position.
-- Navigation state contains `activeSection`, optional `selectedEntryId`, and optional `cameraDestinationId`. Career data never contains spatial coordinates; a separate map will connect stable content IDs to destinations in Layer 3.
+- Navigation state contains `activeSection` and an optional `selectedEntryId`. Content types carry no destination IDs at all; a separate mapping from stable content IDs to camera destinations is introduced only in Layer 3.
 - `CameraController` is the sole camera owner. It remains fixed in Layer 1. Later, it will own and clean up GSAP timelines, interrupt in-flight transitions, and retarget from the current camera transform.
 - The Canvas uses `frameloop="demand"`. Layer 1 will invalidate only after resources finish loading, viewport changes, context restoration, or graphics preference changes. No unconditional `useFrame` invalidation loop will be added.
 - The initial introduction, navigation, active panel, status text, and Reduce effects control render as normal server-rendered HTML. The scene module loads lazily inside a client-only boundary with stable server/client fallback markup.
@@ -83,8 +83,8 @@ src/
 ### Typed content model
 
 - **Profile:** `[Your Name]`, `Solution Architect · Cloud · DevOps`, placeholder introduction, expertise, and organizational value.
-- **Experience:** stable ID, company, role, start/end dates, summary, contributions, technologies, outcomes, related project IDs, and optional destination ID.
-- **Projects:** stable ID, title, problem, role/contribution, architecture decisions, technologies, results, optional images/links, and optional destination ID.
+- **Experience:** stable ID, company, role, start/end dates, summary, contributions, technologies, outcomes, and related project IDs. No destination or camera field.
+- **Projects:** stable ID, title, problem, role/contribution, architecture decisions, technologies, results, and optional images/links. No destination or camera field.
 - **Contact:** explicitly marked placeholders only; no fake URLs, email addresses, or downloads.
 - One local data source feeds every HTML panel. There is no duplicate CV view, `/cv` page, fake download, API, database, authentication, or CMS.
 
@@ -99,7 +99,7 @@ src/
 
 ### B. Typed placeholder content
 
-- [ ] Add strict TypeScript types for profile, company experience, project, contact, section IDs, entry IDs, and destination IDs.
+- [ ] Add strict TypeScript types for profile, company experience, project, contact, section IDs, and stable entry IDs — no destination IDs in content types.
 - [ ] Add `[Your Name]` and the specified professional title.
 - [ ] Mark every other unknown personal value visibly as a placeholder.
 - [ ] Include multiple placeholder experience/project shapes only as clearly labeled structural placeholders—not invented companies, dates, achievements, metrics, testimonials, links, or contact details.
