@@ -14,13 +14,23 @@ import type { PortfolioCanvasProps } from "./PortfolioCanvasProps";
  */
 
 let mountCount = 0;
+let cleanupCount = 0;
 
-function WorkingCanvas({ onReady }: PortfolioCanvasProps) {
+function WorkingCanvas({ onReady, onContextLost }: PortfolioCanvasProps) {
   useEffect(() => {
     mountCount += 1;
     onReady();
+    return () => {
+      cleanupCount += 1;
+    };
   }, [onReady]);
-  return <div data-testid="fake-canvas" />;
+  return (
+    <div data-testid="fake-canvas">
+      <button type="button" onClick={() => onContextLost?.()}>
+        Lose context
+      </button>
+    </div>
+  );
 }
 
 function NeverReadyCanvas(_props: PortfolioCanvasProps) {
