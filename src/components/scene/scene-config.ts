@@ -72,9 +72,9 @@ export const sceneConfig = {
 
   lighting: {
     /** Broad key light separating the near architecture. */
-    key: { position: [12, 16, 9] as Vec3, intensity: 1.35, color: "#93b6dc" },
+    key: { position: [12, 16, 9] as Vec3, intensity: 1.9, color: "#93b6dc" },
     /** Restrained fill so dark surfaces keep tonal variation. */
-    fill: { intensity: 0.42, color: "#6f86ab" },
+    fill: { intensity: 0.7, color: "#6f86ab" },
     /** Rim light behind the gallery, separating midground from background. */
     rim: { position: [-13, 7, -34] as Vec3, intensity: 2.4, color: "#1f7fa0", distance: 90 },
     /** Local glow around the portal so it reads with Bloom disabled. */
