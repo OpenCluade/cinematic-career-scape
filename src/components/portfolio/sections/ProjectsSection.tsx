@@ -9,10 +9,7 @@ export function ProjectsSection() {
 
       <ol className="space-y-5">
         {portfolio.projects.map((project) => (
-          <li
-            key={project.id}
-            className="border-l-2 border-border/80 pl-4"
-          >
+          <li key={project.id} className="border-l-2 border-border/80 pl-4">
             <h3 className="text-base font-semibold text-foreground">{project.title}</h3>
 
             <Block title="Problem" body={project.problem} />
