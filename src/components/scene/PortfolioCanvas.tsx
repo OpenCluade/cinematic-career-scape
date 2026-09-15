@@ -37,8 +37,9 @@ export default function PortfolioCanvas({
       dpr={[1, dprCap]}
       gl={{ antialias: !reduceEffects, powerPreference: "high-performance" }}
       camera={{
-        position: camera.position,
-        fov: camera.fov,
+        // Initial pose only; CameraController owns it from mount onwards.
+        position: camera.desktop.position,
+        fov: camera.desktop.fov,
         near: camera.near,
         far: camera.far,
       }}

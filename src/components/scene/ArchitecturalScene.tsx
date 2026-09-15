@@ -1,35 +1,207 @@
 import { sceneConfig } from "./scene-config";
 
-const { palette, lighting, fog } = sceneConfig;
+const { materials, emissive, lighting, fog, architecture } = sceneConfig;
+const { portal, pierSize } = architecture;
 
-interface Monolith {
-  key: string;
+/**
+ * One coherent architectural gallery, built entirely from procedural
+ * geometry. Composition rules:
+ * - a continuous floor establishes perspective,
+ * - two asymmetric foreground elements frame the view,
+ * - midground piers and recessed openings form a route,
+ * - distant silhouettes dissolve into fog,
+ * - a freestanding portal is the single focal landmark.
+ */
+
+function Architecture({
+  position,
+  size,
+  mineral = false,
+}: {
   position: [number, number, number];
   size: [number, number, number];
-  color: string;
+  mineral?: boolean;
+}) {
+  const m = mineral ? materials.mineral : materials.architecture;
+  return (
+    <mesh position={position}>
+      <boxGeometry args={size} />
+      <meshStandardMaterial color={m.color} roughness={m.roughness} metalness={m.metalness} />
+    </mesh>
+  );
 }
 
-/** Original, procedurally placed architectural volumes. No imported assets. */
-const monoliths: Monolith[] = [
-  { key: "a", position: [-6.2, 3.2, -8], size: [3.2, 6.4, 3.2], color: palette.monolith },
-  { key: "b", position: [-2.4, 5.4, -14], size: [2.6, 10.8, 2.6], color: palette.monolithFar },
-  { key: "c", position: [3.4, 2.4, -6.5], size: [3.8, 4.8, 2.8], color: palette.monolith },
-  { key: "d", position: [7.6, 4.6, -12], size: [3, 9.2, 3], color: palette.monolithFar },
-  { key: "e", position: [-9.5, 2, -18], size: [5, 4, 4], color: palette.monolithFar },
-  { key: "f", position: [11.5, 3, -20], size: [4.4, 6, 4.4], color: palette.monolithFar },
-  { key: "g", position: [0.4, 0.6, -2.4], size: [8.4, 1.2, 4.2], color: palette.monolith },
-];
-
-/** Thin emissive strips that read as architectural lighting. */
-const strips: {
-  key: string;
+function Metal({
+  position,
+  size,
+}: {
   position: [number, number, number];
   size: [number, number, number];
-}[] = [
-  { key: "s1", position: [-6.2, 1.1, -6.35], size: [2.6, 0.09, 0.06] },
-  { key: "s2", position: [3.4, 1.4, -5.05], size: [3, 0.09, 0.06] },
-  { key: "s3", position: [0.4, 1.25, -0.25], size: [7.2, 0.07, 0.06] },
-];
+}) {
+  return (
+    <mesh position={position}>
+      <boxGeometry args={size} />
+      <meshStandardMaterial
+        color={materials.metal.color}
+        roughness={materials.metal.roughness}
+        metalness={materials.metal.metalness}
+      />
+    </mesh>
+  );
+}
+
+function Emissive({
+  position,
+  size,
+  intensity,
+}: {
+  position: [number, number, number];
+  size: [number, number, number];
+  intensity: number;
+}) {
+  return (
+    <mesh position={position}>
+      <boxGeometry args={size} />
+      <meshStandardMaterial
+        color={emissive.color}
+        emissive={emissive.color}
+        emissiveIntensity={intensity}
+        toneMapped={false}
+      />
+    </mesh>
+  );
+}
+
+/** Substantial pier with a thin metal inset on its inward face. */
+function Pier({
+  x,
+  z,
+  height,
+  mineral,
+  insetSide,
+}: {
+  x: number;
+  z: number;
+  height: number;
+  mineral: boolean;
+  insetSide: 1 | -1;
+}) {
+  const { width, depth } = pierSize;
+  return (
+    <group position={[x, 0, z]}>
+      <Architecture position={[0, height / 2, 0]} size={[width, height, depth]} mineral={mineral} />
+      <Metal
+        position={[(insetSide * width) / 2 + insetSide * 0.015, height / 2, 0]}
+        size={[0.06, height * 0.82, depth * 0.34]}
+      />
+      <Architecture position={[0, height + 0.18, 0]} size={[width + 0.5, 0.36, depth + 0.5]} />
+    </group>
+  );
+}
+
+/** A recessed opening: a set-back panel with a lit channel at its head. */
+function Recess({
+  x,
+  z,
+  width,
+  height,
+  facing,
+}: {
+  x: number;
+  z: number;
+  width: number;
+  height: number;
+  facing: 1 | -1;
+}) {
+  return (
+    <group position={[x, 0, z]} rotation-y={(facing * Math.PI) / 2}>
+      <Architecture position={[0, height / 2, -0.55]} size={[width, height, 0.5]} />
+      <Metal position={[0, height / 2, -0.24]} size={[width * 0.5, height * 0.7, 0.05]} />
+      <Emissive
+        position={[0, height - 0.25, -0.2]}
+        size={[width * 0.78, 0.05, 0.05]}
+        intensity={emissive.guideIntensity}
+      />
+    </group>
+  );
+}
+
+/**
+ * The focal landmark: a freestanding rectangular portal with substantial dark
+ * framing, a thin illuminated inner edge and a shallow plinth.
+ */
+function Portal() {
+  const { outer, opening, frameDepth, innerEdge, plinth, position } = portal;
+  const sideWidth = (outer.width - opening.width) / 2;
+  const headHeight = outer.height - opening.height - plinth.height;
+  const openingBase = plinth.height;
+  const sideX = opening.width / 2 + sideWidth / 2;
+  const edgeZ = frameDepth / 2 + innerEdge / 2;
+
+  return (
+    <group position={position}>
+      {/* Shallow plinth */}
+      <Architecture
+        position={[0, plinth.height / 2, 0]}
+        size={[plinth.width, plinth.height, plinth.depth]}
+        mineral
+      />
+
+      {/* Dark frame: two jambs and a head */}
+      <Architecture
+        position={[-sideX, openingBase + opening.height / 2, 0]}
+        size={[sideWidth, opening.height, frameDepth]}
+      />
+      <Architecture
+        position={[sideX, openingBase + opening.height / 2, 0]}
+        size={[sideWidth, opening.height, frameDepth]}
+      />
+      <Architecture
+        position={[0, openingBase + opening.height + headHeight / 2, 0]}
+        size={[outer.width, headHeight, frameDepth]}
+      />
+
+      {/* Metal facing keeps the silhouette crisp */}
+      <Metal
+        position={[0, openingBase + opening.height + headHeight / 2, frameDepth / 2 + 0.02]}
+        size={[outer.width, 0.12, 0.04]}
+      />
+
+      {/* Thin illuminated inner edge, front and back */}
+      {[edgeZ, -edgeZ].map((z) => (
+        <group key={z}>
+          <Emissive
+            position={[-opening.width / 2 + innerEdge / 2, openingBase + opening.height / 2, z]}
+            size={[innerEdge, opening.height, innerEdge]}
+            intensity={emissive.portalIntensity}
+          />
+          <Emissive
+            position={[opening.width / 2 - innerEdge / 2, openingBase + opening.height / 2, z]}
+            size={[innerEdge, opening.height, innerEdge]}
+            intensity={emissive.portalIntensity}
+          />
+          <Emissive
+            position={[0, openingBase + opening.height - innerEdge / 2, z]}
+            size={[opening.width, innerEdge, innerEdge]}
+            intensity={emissive.portalIntensity}
+          />
+          <Emissive
+            position={[0, openingBase + innerEdge / 2, z]}
+            size={[opening.width, innerEdge, innerEdge]}
+            intensity={emissive.portalIntensity}
+          />
+        </group>
+      ))}
+
+      <pointLight
+        position={[0, openingBase + opening.height / 2, 0]}
+        intensity={lighting.portal.intensity}
+        color={lighting.portal.color}
+        distance={lighting.portal.distance}
+      />
+    </group>
+  );
+}
 
 export function ArchitecturalScene() {
   return (
@@ -37,63 +209,80 @@ export function ArchitecturalScene() {
       <color attach="background" args={[sceneConfig.render.clearColor]} />
       <fogExp2 attach="fog" args={[fog.color, fog.density]} />
 
-      <ambientLight intensity={lighting.ambientIntensity} color="#7f93b5" />
+      <ambientLight intensity={lighting.fill.intensity} color={lighting.fill.color} />
       <directionalLight
-        position={lighting.keyPosition}
-        intensity={lighting.keyIntensity}
-        color="#8fb4d8"
+        position={lighting.key.position}
+        intensity={lighting.key.intensity}
+        color={lighting.key.color}
       />
       <pointLight
-        position={lighting.rimPosition}
-        intensity={lighting.rimIntensity}
-        color={palette.emissiveSecondary}
-        distance={60}
+        position={lighting.rim.position}
+        intensity={lighting.rim.intensity}
+        color={lighting.rim.color}
+        distance={lighting.rim.distance}
       />
 
-      {/* Ground plane */}
-      <mesh rotation-x={-Math.PI / 2} position={[0, 0, -6]}>
-        <planeGeometry args={[160, 160]} />
-        <meshStandardMaterial color={palette.ground} roughness={0.86} metalness={0.08} />
+      {/* Continuous floor */}
+      <mesh rotation-x={-Math.PI / 2} position={[architecture.routeX, 0, architecture.floor.z]}>
+        <planeGeometry args={[architecture.floor.size, architecture.floor.size]} />
+        <meshStandardMaterial
+          color={materials.floor.color}
+          roughness={materials.floor.roughness}
+          metalness={materials.floor.metalness}
+        />
       </mesh>
 
-      {monoliths.map((m) => (
-        <mesh key={m.key} position={m.position}>
-          <boxGeometry args={m.size} />
-          <meshStandardMaterial color={m.color} roughness={0.72} metalness={0.18} />
-        </mesh>
+      {architecture.foreground.map((f) => (
+        <Architecture key={f.key} position={f.position} size={f.size} />
       ))}
 
-      {strips.map((s) => (
-        <mesh key={s.key} position={s.position}>
-          <boxGeometry args={s.size} />
+      {architecture.piers.map((p) => (
+        <Pier
+          key={p.key}
+          x={p.x}
+          z={p.z}
+          height={p.height}
+          mineral={p.mineral}
+          insetSide={p.x < architecture.routeX ? 1 : -1}
+        />
+      ))}
+
+      {architecture.recesses.map((r) => (
+        <Recess
+          key={r.key}
+          x={r.x}
+          z={r.z}
+          width={r.width}
+          height={r.height}
+          facing={r.x < architecture.routeX ? -1 : 1}
+        />
+      ))}
+
+      {architecture.platforms.map((p) => (
+        <Architecture key={p.key} position={p.position} size={p.size} mineral />
+      ))}
+
+      {architecture.guides.map((g) => (
+        <Emissive
+          key={g.key}
+          position={g.position}
+          size={g.size}
+          intensity={emissive.guideIntensity}
+        />
+      ))}
+
+      {architecture.distant.map((d) => (
+        <mesh key={d.key} position={d.position}>
+          <boxGeometry args={d.size} />
           <meshStandardMaterial
-            color={palette.emissive}
-            emissive={palette.emissive}
-            emissiveIntensity={2.4}
-            toneMapped={false}
+            color={materials.distant.color}
+            roughness={materials.distant.roughness}
+            metalness={materials.distant.metalness}
           />
         </mesh>
       ))}
 
-      {/* Focal emissive object — the intended Bloom subject. */}
-      <mesh position={[4.6, 3.6, -8]}>
-        <torusGeometry args={[1.45, 0.055, 24, 140]} />
-        <meshStandardMaterial
-          color={palette.emissive}
-          emissive={palette.emissive}
-          emissiveIntensity={4.5}
-          toneMapped={false}
-        />
-      </mesh>
-      <mesh position={[4.6, 3.6, -8]}>
-        <sphereGeometry args={[0.34, 32, 32]} />
-        <meshStandardMaterial
-          color="#d8fbff"
-          emissive={palette.emissive}
-          emissiveIntensity={3.2}
-          toneMapped={false}
-        />
-      </mesh>
+      <Portal />
     </group>
   );
 }

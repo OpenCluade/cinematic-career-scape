@@ -10,10 +10,7 @@ export function ExperienceSection() {
 
       <ol className="space-y-5">
         {portfolio.experience.map((entry) => (
-          <li
-            key={entry.id}
-            className="rounded-lg border border-border bg-surface/60 p-4 backdrop-blur-sm"
-          >
+          <li key={entry.id} className="border-l-2 border-border/80 pl-4">
             <h3 className="text-base font-semibold text-foreground">{entry.company}</h3>
             <p className="text-sm text-accent">{entry.role}</p>
             <p className="mt-1 text-xs text-muted-foreground">
