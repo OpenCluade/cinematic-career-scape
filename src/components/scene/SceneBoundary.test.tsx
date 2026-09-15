@@ -14,13 +14,23 @@ import type { PortfolioCanvasProps } from "./PortfolioCanvasProps";
  */
 
 let mountCount = 0;
+let cleanupCount = 0;
 
-function WorkingCanvas({ onReady }: PortfolioCanvasProps) {
+function WorkingCanvas({ onReady, onContextLost }: PortfolioCanvasProps) {
   useEffect(() => {
     mountCount += 1;
     onReady();
+    return () => {
+      cleanupCount += 1;
+    };
   }, [onReady]);
-  return <div data-testid="fake-canvas" />;
+  return (
+    <div data-testid="fake-canvas">
+      <button type="button" onClick={() => onContextLost?.()}>
+        Lose context
+      </button>
+    </div>
+  );
 }
 
 function NeverReadyCanvas(_props: PortfolioCanvasProps) {
@@ -33,6 +43,7 @@ function ThrowingCanvas(_props: PortfolioCanvasProps): never {
 
 beforeEach(() => {
   mountCount = 0;
+  cleanupCount = 0;
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
@@ -98,7 +109,25 @@ describe("deliberate recovery", () => {
 
     await waitFor(() => expect(screen.getByTestId("fake-canvas")).toBeTruthy());
     expect(loadCanvas).toHaveBeenCalledTimes(2);
-    expect(screen.queryByTestId("scene-status")).toBeNull();
+    // Readiness arrives in a later effect, so the status must be awaited too.
+    await waitFor(() => expect(screen.queryByTestId("scene-status")).toBeNull());
+  });
+
+  it("creates exactly one replacement Canvas per recovery click", async () => {
+    const loadCanvas = vi.fn().mockResolvedValue({ default: WorkingCanvas });
+    render(<SceneBoundaryView support="supported" {...base} loadCanvas={loadCanvas} />);
+
+    await screen.findByTestId("fake-canvas");
+    expect(mountCount).toBe(1);
+
+    fireEvent.click(screen.getByText("Lose context"));
+    await screen.findByText(STATUS_MESSAGE["context-lost"]!, { exact: false });
+
+    fireEvent.click(screen.getByRole("button", { name: "Restore graphics" }));
+
+    await waitFor(() => expect(screen.queryByTestId("scene-status")).toBeNull());
+    expect(mountCount).toBe(2);
+    expect(cleanupCount).toBe(1);
   });
 
   it("resets the failed error boundary after a render failure", async () => {

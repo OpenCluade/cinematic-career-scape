@@ -124,7 +124,11 @@ export function SceneBoundaryView({
   const handleContextRestored = useCallback(() => setStatus("ready"), []);
   const handleRenderError = useCallback(() => setStatus("render-error"), []);
   const recover = useCallback(() => {
+    // Unmount the current Canvas in the same update that bumps the
+    // generation. Without this the old element would first remount under the
+    // new key and the loading effect would then mount a second one.
     setStatus("loading");
+    setCanvas(null);
     setGeneration((value) => value + 1);
   }, []);
 
