@@ -43,7 +43,7 @@ export function ContentPanel() {
       ref={panelRef}
       id="portfolio-panel"
       aria-labelledby="portfolio-panel-heading"
-      className="w-full max-w-xl rounded-xl border border-border bg-surface/75 p-5 shadow-lg backdrop-blur-md md:max-h-[calc(100vh-13rem)] md:overflow-y-auto"
+      className="w-full rounded-xl border border-border bg-surface/85 p-4 shadow-lg backdrop-blur-md md:max-h-[calc(100vh-14rem)] md:w-[27rem] md:overflow-y-auto md:p-5 lg:w-[29rem]"
     >
       <h2 id="portfolio-panel-heading" className="text-xl font-semibold tracking-tight">
         {meta?.heading ?? "About"}

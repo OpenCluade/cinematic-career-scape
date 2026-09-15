@@ -7,7 +7,8 @@ export function SectionNavigation() {
 
   return (
     <nav aria-label="Portfolio sections">
-      <ul className="flex flex-wrap gap-2">
+      {/* Two columns while narrow, a single row once there is width. */}
+      <ul className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
         {portfolio.sections.map((section) => {
           const isActive = section.id === activeSection;
           return (
@@ -18,11 +19,11 @@ export function SectionNavigation() {
                 aria-current={isActive ? "true" : undefined}
                 aria-controls="portfolio-panel"
                 className={cn(
-                  "min-h-11 rounded-full border px-4 text-sm font-medium transition-colors",
+                  "min-h-11 w-full rounded-full border px-4 text-sm font-medium transition-colors",
                   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
                   isActive
                     ? "border-accent bg-accent/15 text-accent"
-                    : "border-border bg-surface/60 text-foreground/80 hover:border-accent/60 hover:text-foreground",
+                    : "border-border bg-surface/70 text-foreground/80 hover:border-accent/60 hover:text-foreground",
                 )}
               >
                 {section.label}

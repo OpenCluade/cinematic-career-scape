@@ -11,7 +11,7 @@ export function ProjectsSection() {
         {portfolio.projects.map((project) => (
           <li
             key={project.id}
-            className="rounded-lg border border-border bg-surface/60 p-4 backdrop-blur-sm"
+            className="border-l-2 border-border/80 pl-4"
           >
             <h3 className="text-base font-semibold text-foreground">{project.title}</h3>
 
