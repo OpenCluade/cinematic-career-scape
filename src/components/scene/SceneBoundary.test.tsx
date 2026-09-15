@@ -120,7 +120,7 @@ describe("deliberate recovery", () => {
     await screen.findByTestId("fake-canvas");
     expect(mountCount).toBe(1);
 
-    fireEvent.click(screen.getByRole("button", { name: "Lose context" }));
+    fireEvent.click(screen.getByText("Lose context"));
     await screen.findByText(STATUS_MESSAGE["context-lost"]!, { exact: false });
 
     fireEvent.click(screen.getByRole("button", { name: "Restore graphics" }));
