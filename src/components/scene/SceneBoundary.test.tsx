@@ -43,6 +43,7 @@ function ThrowingCanvas(_props: PortfolioCanvasProps): never {
 
 beforeEach(() => {
   mountCount = 0;
+  cleanupCount = 0;
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
